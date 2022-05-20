@@ -1,1 +1,1 @@
-# Gi-Plastic-Arduino
+# GL-Plastic-Arduino
