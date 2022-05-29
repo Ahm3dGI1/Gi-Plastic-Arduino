@@ -4,22 +4,21 @@
 #include <EEPROM.h>
 #endif
 
-// motor Variables
-int motor1pin1 = 6;
-int motor1pin2 = 7;
-bool blend = true;
+//IR Sensor:
 
-//Servo Variables
-Servo myservo;
+unsigned long beginTime = 0;
+unsigned long endTime;
+unsigned long distance;
+unsigned long sp = 4.5;
+int cir = 0;
 
-//IR
-int IRSensor = 2;
 
-//Load Cell
-
-//pins:
+//Load Cell:
 const int HX711_dout = 4; //mcu > HX711 dout pin
 const int HX711_sck = 3; //mcu > HX711 sck pin
+
+float containerWeight= 270;
+bool massRequirement = true;
 
 //HX711 constructor:
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
@@ -27,26 +26,17 @@ HX711_ADC LoadCell(HX711_dout, HX711_sck);
 const int calVal_eepromAdress = 0;
 unsigned long t = 0;
 
-
 void setup() {
 
-   Serial.begin(57600); delay(10);
+  Serial.begin(57600); delay(10);
   Serial.println();
   Serial.println("Starting...");
 
-  //Servo pins
-  myservo.attach(9);  
-  myservo.write(0);
+  //IR
+  pinMode(22, INPUT);
 
-  //motor pins
-  pinMode(motor1pin1, OUTPUT);
-  pinMode(motor1pin2, OUTPUT);
-
-  //Light Sensor
-  pinMode (IRSensor, INPUT);
-  
   //Load Cell
-   LoadCell.begin();
+  LoadCell.begin();
   float calibrationValue = 390.56; // calibration value (see example file "Calibration.ino")
   unsigned long stabilizingtime = 2000; // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
   boolean _tare = true; //set this to false if you don't want tare to be performed in the next step
@@ -59,30 +49,13 @@ void setup() {
     LoadCell.setCalFactor(calibrationValue); // set calibration value (float)
     Serial.println("Startup is complete");
   }
+
 }
 
 void loop() {
-  // Blender
-  if (blend){
-    digitalWrite(motor1pin1, HIGH);
-    digitalWrite(motor1pin2, LOW);
-  
-    delay(10000);
-  
-    digitalWrite(motor1pin1, LOW);
-    digitalWrite(motor1pin2, LOW);
-  
 
-    //Servo
-  
-    for (int pos = 0; pos <= 130; pos += 1) {
-      myservo.write(pos);
-      delay(50);
-    }
-
-    blend = false;
-  }
-
+  while(massRequirement){
+ 
   //Load cell
   static boolean newDataReady = 0;
   const int serialPrintInterval = 0; //increase value to slow down serial print activity
@@ -94,15 +67,10 @@ void loop() {
   if (newDataReady) {
     if (millis() > t + serialPrintInterval) {
       float i = LoadCell.getData();
-      Serial.println("Mass =");
-      Serial.println(i);
-      if (i > 350){
-          myservo.write(0);
-        }
       }
       newDataReady = 0;
       t = millis();
-    } 
+    }
 
   // receive command from serial terminal, send 't' to initiate tare operation:
   if (Serial.available() > 0) {
@@ -115,5 +83,46 @@ void loop() {
     Serial.println("Tare complete");
   }
 
- }
- 
+  if (LoadCell.getData()>=(277) && LoadCell.getData()<=(281)){
+      Serial.print("Mass = ");
+      Serial.println(LoadCell.getData()-containerWeight);
+      Serial.println("The mass design requirement achieved :D");
+    }
+
+    else if (LoadCell.getData()<277){
+      Serial.print("Mass = ");
+      Serial.println(LoadCell.getData()-containerWeight);
+      Serial.println("The mass is less than the range. increase the amount of the solution");
+    }
+
+    else{
+      Serial.print("Mass = ");
+      Serial.println(LoadCell.getData()-containerWeight);
+      Serial.println("The mass is more than the range. Decrease the amount of the solution");
+    }
+    }
+
+   //IR Sensor:
+
+   if (digitalRead(22) == 1)
+  {
+    beginTime = millis();
+    while (digitalRead(22))
+      endTime = millis();
+    Serial.print("begin : ");
+    Serial.println(beginTime);
+    Serial.print("end : ");
+    Serial.println(endTime);
+    distance = endTime - beginTime;
+    distance *=  sp;
+    distance /=  1000;
+    distance -=  6;
+
+    if (distance>=(0.08) && distance<=(0.12)){
+      Serial.print("Mass = ");
+      Serial.println(LoadCell.getData()-containerWeight);
+      Serial.println("The mass design requirement achieved :D");
+    }
+  }
+
+}
