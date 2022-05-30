@@ -6,18 +6,15 @@
 
 //IR Sensor:
 
-unsigned long beginTime = 0;
-unsigned long endTime;
-unsigned long distance;
-unsigned long sp = 4.5;
-int cir = 0;
+double duration; // variable for the duration of sound wave travel
+float distance; // variable for the distance measurement
 
 
 //Load Cell:
 const int HX711_dout = 4; //mcu > HX711 dout pin
 const int HX711_sck = 3; //mcu > HX711 sck pin
 
-float containerWeight= 270;
+float containerWeight= 271;
 bool massRequirement = true;
 
 //HX711 constructor:
@@ -33,7 +30,8 @@ void setup() {
   Serial.println("Starting...");
 
   //IR
-  pinMode(22, INPUT);
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
+  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
 
   //Load Cell
   LoadCell.begin();
@@ -86,7 +84,7 @@ void loop() {
   if (LoadCell.getData()>=(277) && LoadCell.getData()<=(281)){
       Serial.print("Mass = ");
       Serial.println(LoadCell.getData()-containerWeight);
-      Serial.println("The mass design requirement achieved :D");
+      Serial.println("The mass design requirement achieved");
     }
 
     else if (LoadCell.getData()<277){
@@ -102,26 +100,40 @@ void loop() {
     }
     }
 
-   //IR Sensor:
+//IR Sensor:
 
-   if (digitalRead(22) == 1)
-  {
-    beginTime = millis();
-    while (digitalRead(22))
-      endTime = millis();
-    Serial.print("begin : ");
-    Serial.println(beginTime);
-    Serial.print("end : ");
-    Serial.println(endTime);
-    distance = endTime - beginTime;
-    distance *=  sp;
-    distance /=  1000;
-    distance -=  6;
+  // Clears the trigPin condition
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
+  distance -= 11.6; // Distance from the sensor to the container
 
     if (distance>=(0.08) && distance<=(0.12)){
-      Serial.print("Mass = ");
-      Serial.println(LoadCell.getData()-containerWeight);
-      Serial.println("The mass design requirement achieved :D");
+      Serial.print("Thickness = ");
+      Serial.print(distance);
+      Serial.println(" cm");
+      Serial.println("The thickness design requirement achieved");
+    }
+
+    else if (distance<(0.08)){
+      Serial.print("Thickness = ");
+      Serial.print(distance);
+      Serial.println(" cm");
+      Serial.println("The thickness is below the range. Increase the gelatin ratio");
+    }
+
+    if (distance>=(0.08) && distance<=(0.12)){
+      Serial.print("Thickness = ");
+      Serial.print(distance);
+      Serial.println(" cm");
+      Serial.println("The thickness design requirement achieved");
     }
   }
 

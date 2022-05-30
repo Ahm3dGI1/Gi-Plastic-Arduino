@@ -67,7 +67,7 @@ void loop() {
     digitalWrite(motor1pin1, HIGH);
     digitalWrite(motor1pin2, LOW);
   
-    delay(10000);
+    delay(60000);
   
     digitalWrite(motor1pin1, LOW);
     digitalWrite(motor1pin2, LOW);
@@ -75,9 +75,9 @@ void loop() {
 
     //Servo
   
-    for (int pos = 0; pos <= 130; pos += 1) {
+    for (int pos = 0; pos <= 120; pos += 1) {
       myservo.write(pos);
-      delay(50);
+      delay(100);
     }
 
     blend = false;
