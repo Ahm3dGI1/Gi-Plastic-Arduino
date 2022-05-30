@@ -92,15 +92,17 @@ void loop() {
     else if (mass<7){
       Serial.print("Mass = ");
       Serial.println(mass);
-      Serial.print("The mass is less than the range. increase the amount of the solution by");
-      Serial.println((9-mass)/(9/350));
+      Serial.print("The mass is less than the range. increase the amount of the solution by ");
+      Serial.print((9-mass)/0.0257);
+      Serial.println("ml");
     }
 
     else{
       Serial.print("Mass = ");
       Serial.println(mass);
-      Serial.print("The mass is more than the range. Decrease the amount of the solution by");
-      Serial.println((9-mass)/(9/350));
+      Serial.print("The mass is more than the range. Decrease the amount of the solution by ");
+      Serial.print((9-mass)/-0.0257);
+      Serial.println("ml");
     }
 
 //IR Sensor:

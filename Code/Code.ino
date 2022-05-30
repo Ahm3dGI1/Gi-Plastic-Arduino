@@ -12,9 +12,6 @@ bool blend = true;
 //Servo Variables
 Servo myservo;
 
-//IR
-int IRSensor = 2;
-
 //Load Cell
 
 //pins:
@@ -41,9 +38,6 @@ void setup() {
   //motor pins
   pinMode(motor1pin1, OUTPUT);
   pinMode(motor1pin2, OUTPUT);
-
-  //Light Sensor
-  pinMode (IRSensor, INPUT);
   
   //Load Cell
    LoadCell.begin();
@@ -60,7 +54,6 @@ void setup() {
     Serial.println("Startup is complete");
   }
 }
-  
   void loop() {
     // Blender
     if (blend){
