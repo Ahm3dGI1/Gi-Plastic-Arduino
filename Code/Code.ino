@@ -60,20 +60,20 @@ void setup() {
     Serial.println("Startup is complete");
   }
 }
-
-void loop() {
-  // Blender
-  if (blend){
-    digitalWrite(motor1pin1, HIGH);
-    digitalWrite(motor1pin2, LOW);
   
-    delay(60000);
+  void loop() {
+    // Blender
+    if (blend){
+      digitalWrite(motor1pin1, HIGH);
+      digitalWrite(motor1pin2, LOW);
+    
+      delay(60000);
+    
+      digitalWrite(motor1pin1, LOW);
+      digitalWrite(motor1pin2, LOW);
+    
   
-    digitalWrite(motor1pin1, LOW);
-    digitalWrite(motor1pin2, LOW);
-  
-
-    //Servo
+      //Servo
   
     for (int pos = 0; pos <= 120; pos += 1) {
       myservo.write(pos);

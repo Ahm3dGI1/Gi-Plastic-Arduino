@@ -9,13 +9,16 @@
 double duration; // variable for the duration of sound wave travel
 float distance; // variable for the distance measurement
 
+#define echoPin 12 // attach pin D2 Arduino to pin Echo of HC-SR04
+#define trigPin 11
+
 
 //Load Cell:
 const int HX711_dout = 4; //mcu > HX711 dout pin
 const int HX711_sck = 3; //mcu > HX711 sck pin
 
-float containerWeight= 271;
-bool massRequirement = true;
+float containerWeight= 291;
+int mass;
 
 //HX711 constructor:
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
@@ -51,8 +54,6 @@ void setup() {
 }
 
 void loop() {
-
-  while(massRequirement){
  
   //Load cell
   static boolean newDataReady = 0;
@@ -81,23 +82,25 @@ void loop() {
     Serial.println("Tare complete");
   }
 
-  if (LoadCell.getData()>=(277) && LoadCell.getData()<=(281)){
+  mass = LoadCell.getData() - containerWeight;
+  if (mass>=(7) && mass<=(11)){
       Serial.print("Mass = ");
       Serial.println(LoadCell.getData()-containerWeight);
       Serial.println("The mass design requirement achieved");
     }
 
-    else if (LoadCell.getData()<277){
+    else if (mass<7){
       Serial.print("Mass = ");
-      Serial.println(LoadCell.getData()-containerWeight);
-      Serial.println("The mass is less than the range. increase the amount of the solution");
+      Serial.println(mass);
+      Serial.print("The mass is less than the range. increase the amount of the solution by");
+      Serial.println((9-mass)/(9/350));
     }
 
     else{
       Serial.print("Mass = ");
-      Serial.println(LoadCell.getData()-containerWeight);
-      Serial.println("The mass is more than the range. Decrease the amount of the solution");
-    }
+      Serial.println(mass);
+      Serial.print("The mass is more than the range. Decrease the amount of the solution by");
+      Serial.println((9-mass)/(9/350));
     }
 
 //IR Sensor:
@@ -113,7 +116,7 @@ void loop() {
   duration = pulseIn(echoPin, HIGH);
   // Calculating the distance
   distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
-  distance -= 11.6; // Distance from the sensor to the container
+  distance -= 9.85; // Distance from the sensor to the container
 
     if (distance>=(0.08) && distance<=(0.12)){
       Serial.print("Thickness = ");
@@ -129,12 +132,10 @@ void loop() {
       Serial.println("The thickness is below the range. Increase the gelatin ratio");
     }
 
-    if (distance>=(0.08) && distance<=(0.12)){
+    else{
       Serial.print("Thickness = ");
       Serial.print(distance);
       Serial.println(" cm");
-      Serial.println("The thickness design requirement achieved");
+      Serial.println("The thickness is above the range. Decrease the gelatin ratio");
     }
   }
-
-}
