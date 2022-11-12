@@ -17,7 +17,7 @@ float distance; // variable for the distance measurement
 const int HX711_dout = 4; //mcu > HX711 dout pin
 const int HX711_sck = 3; //mcu > HX711 sck pin
 
-float containerWeight= 291;
+float containerWeight= 273;
 int mass;
 
 //HX711 constructor:
@@ -43,7 +43,7 @@ void setup() {
   boolean _tare = true; //set this to false if you don't want tare to be performed in the next step
   LoadCell.start(stabilizingtime, _tare);
   if (LoadCell.getTareTimeoutFlag()) {
-    Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+    Serial.printlnx("Timeout, check MCU>HX711 wiring and pin designations");
     while (1);
   }
   else {
@@ -118,7 +118,7 @@ void loop() {
   duration = pulseIn(echoPin, HIGH);
   // Calculating the distance
   distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
-  distance -= 9.85; // Distance from the sensor to the container
+  distance -= 10.25; // Distance from the sensor to the container
 
     if (distance>=(0.08) && distance<=(0.12)){
       Serial.print("Thickness = ");
